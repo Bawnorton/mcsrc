@@ -10,7 +10,7 @@ const DiffView = () => {
             <Splitter.Panel min="5%" size={sizes[0]} style={{ overflow: 'hidden' }}>
                 <div style={{ display: 'flex', flexDirection: 'column'}}>
                     {/*
-                    <DiffEditor/> has does not allow setting various css properties and only accepts a height
+                    <DiffEditor/> does not allow setting various css properties and only accepts a height
                     literal, so we pass the expected size from the view to the editor to ensure it fits in the
                     viewport correctly
                     */}

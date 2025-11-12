@@ -3,7 +3,7 @@ import { combineLatest, distinctUntilChanged, from, map, Observable, shareReplay
 import { minecraftJar, type Jar } from "./MinecraftApi";
 import type JSZip from "jszip";
 import { decompile, type Options, type TokenCollector } from "./vf";
-import {selectedFile, state} from "./State";
+import { selectedFile, state } from "./State";
 import { removeImports } from "./Settings";
 
 export interface DecompileResult {
