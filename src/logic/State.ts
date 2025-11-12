@@ -6,14 +6,12 @@ export interface State {
   version: number; // Allows us to change the permalink structure in the future
   minecraftVersion: string;
   file: string;
-  isLoading: boolean;
 }
 
 const DEFAULT_STATE: State = {
   version: 0,
   minecraftVersion: "",
-  file: "net/minecraft/ChatFormatting.class",
-  isLoading: false
+  file: "net/minecraft/ChatFormatting.class"
 };
 
 const getInitialState = (): State => {
@@ -37,19 +35,13 @@ const getInitialState = (): State => {
   return {
     version,
     minecraftVersion,
-    file: filePath + (filePath.endsWith('.class') ? '' : '.class'),
-    isLoading: false
+    file: filePath + (filePath.endsWith('.class') ? '' : '.class')
   };
 };
 
 export const state = new BehaviorSubject<State>(getInitialState());
 export const selectedFile = state.pipe(
   map(s => s.file),
-  distinctUntilChanged()
-);
-
-export const isDecompiling = state.pipe(
-  map(s => s.isLoading),
   distinctUntilChanged()
 );
 
@@ -86,7 +78,6 @@ export function setSelectedFile(file: string) {
   state.next({
     version: 1,
     minecraftVersion: selectedMinecraftVersion.value || "",
-    file,
-    isLoading: true
+    file
   });
 }

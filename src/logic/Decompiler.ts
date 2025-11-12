@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { combineLatest, distinctUntilChanged, from, map, Observable, shareReplay, switchMap, throttleTime } from "rxjs";
+import {
+    BehaviorSubject,
+    combineLatest, distinctUntilChanged, from, map, Observable, shareReplay, switchMap, tap, throttleTime
+} from "rxjs";
 import { minecraftJar, type Jar } from "./MinecraftApi";
 import type JSZip from "jszip";
 import { decompile, type Options, type TokenCollector } from "./vf";
-import { selectedFile, state } from "./State";
+import { selectedFile } from "./State";
 import { removeImports } from "./Settings";
 
 export interface DecompileResult {
@@ -22,6 +25,14 @@ export interface ClassToken {
     declaration: boolean
 }
 
+const decompilerCounter = new BehaviorSubject<number>(0);
+
+export const isDecompiling = decompilerCounter.pipe(
+    map(count => count > 0),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true })
+)
+
 const decompilerOptions: Observable<Options> = removeImports.observable.pipe(
     map(removeImports => (
         { "remove-imports": removeImports ? "1" : "0" }
@@ -29,16 +40,6 @@ const decompilerOptions: Observable<Options> = removeImports.observable.pipe(
 );
 
 export const currentResult = decompileResultPipeline(minecraftJar);
-
-currentResult.subscribe(() => {
-  if(state.value.isLoading) {
-    state.next({
-      ...state.value,
-      isLoading: false
-    })
-  }
-})
-
 export function decompileResultPipeline(jar: Observable<Jar>): Observable<DecompileResult> {
     return combineLatest([
         selectedFile,
@@ -46,8 +47,10 @@ export function decompileResultPipeline(jar: Observable<Jar>): Observable<Decomp
         decompilerOptions
     ]).pipe(
         distinctUntilChanged(),
+        tap(() => decompilerCounter.next(decompilerCounter.value + 1)),
         throttleTime(250),
         switchMap(([className, jar, options]) => from(decompileClass(className, jar.zip, options))),
+        tap(() => decompilerCounter.next(decompilerCounter.value - 1)),
         shareReplay({ bufferSize: 1, refCount: false })
     );
 }

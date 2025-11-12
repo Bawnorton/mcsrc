@@ -4,8 +4,9 @@ import { getDiffChanges, type ChangeState } from '../../logic/Diff';
 import { BehaviorSubject, map, combineLatest } from 'rxjs';
 import { useObservable } from '../../utils/UseObservable';
 import type { SearchProps } from 'antd/es/input';
-import { selectedFile, setSelectedFile, isDecompiling } from '../../logic/State';
+import { selectedFile, setSelectedFile } from '../../logic/State';
 import { diffView } from "../../logic/Diff";
+import { isDecompiling } from "../../logic/Decompiler.ts";
 
 const statusColors: Record<ChangeState, string> = {
     modified: 'gold',

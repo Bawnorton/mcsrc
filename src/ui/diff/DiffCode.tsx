@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import type { editor } from 'monaco-editor';
 import { Spin } from "antd";
 import { LoadingOutlined } from '@ant-design/icons';
-import { isDecompiling } from "../../logic/State.ts";
+import { isDecompiling } from "../../logic/Decompiler.ts";
 
 interface DiffCodeProps {
     height?: number | string
