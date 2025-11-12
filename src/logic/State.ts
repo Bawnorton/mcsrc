@@ -1,4 +1,4 @@
-import { BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, map } from "rxjs";
 import { selectedMinecraftVersion } from "./MinecraftApi";
 import { diffView } from "./Diff";
 
@@ -6,12 +6,14 @@ export interface State {
   version: number; // Allows us to change the permalink structure in the future
   minecraftVersion: string;
   file: string;
+  isLoading: boolean;
 }
 
 const DEFAULT_STATE: State = {
   version: 0,
   minecraftVersion: "",
-  file: "net/minecraft/ChatFormatting.class"
+  file: "net/minecraft/ChatFormatting.class",
+  isLoading: false
 };
 
 const getInitialState = (): State => {
@@ -35,13 +37,20 @@ const getInitialState = (): State => {
   return {
     version,
     minecraftVersion,
-    file: filePath + (filePath.endsWith('.class') ? '' : '.class')
+    file: filePath + (filePath.endsWith('.class') ? '' : '.class'),
+    isLoading: false
   };
 };
 
 export const state = new BehaviorSubject<State>(getInitialState());
 export const selectedFile = state.pipe(
-  map(s => s.file)
+  map(s => s.file),
+  distinctUntilChanged()
+);
+
+export const isDecompiling = state.pipe(
+  map(s => s.isLoading),
+  distinctUntilChanged()
 );
 
 state.subscribe(s => {
@@ -77,6 +86,7 @@ export function setSelectedFile(file: string) {
   state.next({
     version: 1,
     minecraftVersion: selectedMinecraftVersion.value || "",
-    file
+    file,
+    isLoading: true
   });
 }

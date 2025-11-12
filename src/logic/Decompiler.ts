@@ -3,7 +3,7 @@ import { combineLatest, distinctUntilChanged, from, map, Observable, shareReplay
 import { minecraftJar, type Jar } from "./MinecraftApi";
 import type JSZip from "jszip";
 import { decompile, type Options, type TokenCollector } from "./vf";
-import { selectedFile } from "./State";
+import {selectedFile, state} from "./State";
 import { removeImports } from "./Settings";
 
 export interface DecompileResult {
@@ -29,6 +29,16 @@ const decompilerOptions: Observable<Options> = removeImports.observable.pipe(
 );
 
 export const currentResult = decompileResultPipeline(minecraftJar);
+
+currentResult.subscribe(() => {
+  if(state.value.isLoading) {
+    state.next({
+      ...state.value,
+      isLoading: false
+    })
+  }
+})
+
 export function decompileResultPipeline(jar: Observable<Jar>): Observable<DecompileResult> {
     return combineLatest([
         selectedFile,
